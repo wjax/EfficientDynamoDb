@@ -34,7 +34,11 @@ namespace EfficientDynamoDb.Operations.Query
         
         public async Task<IReadOnlyList<TEntity>> ToListAsync(CancellationToken cancellationToken = default)
         {
-            var tableName = _context.Config.Metadata.GetOrAddClassInfo(typeof(TEntity)).GetTableName();
+            string? tableName = (this as ITableBuilder<IQueryEntityRequestBuilder<TEntity>>).GetTableNameByNode();
+            
+            if (tableName is null)
+                tableName = _context.Config.Metadata.GetOrAddClassInfo(typeof(TEntity)).GetTableName();
+            
             return await _context.QueryListAsync<TEntity>(tableName, GetNode(), cancellationToken).ConfigureAwait(false);
         }
 
